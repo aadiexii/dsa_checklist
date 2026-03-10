@@ -1,30 +1,59 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-vector<vector<int>> matrixToAdjacency(vector<vector<int>> &adjMatrix, int n){
-    vector<vector<int>> adjList(n+1);
-
-    for(int i=1; i<=n; i++){
-        for(int j=1; j<=n; j++){
-            if(adjMatrix[i][j] == 1 && i!= j)
-            adjList[i].push_back(j);
-        }
-    }
-    
-    return adjList;
-}
+//Concept: Grid problem → treat cells as graph nodes → BFS spreads level by level → each level = time
 
 int main(){
     int m, n;
     cin >> m >> n;
-    vector<vector<int>> adjMatrix(m+1, vector<int> (n+1, 0));
+    vector<vector<int>> grid(m, vector<int> (n));
 
-    for(int i=1; i<=n; i++){
-        for(int j=1; j<=m; j++){
-            cin >> adjMatrix[i][j];
+    for(int i=0; i<m; i++){
+        for(int j=0; j<n; j++){
+            cin >> grid[i][j];
         }
     } 
+    
+    queue<pair<pair<int, int>, int>> q;
+    vector<vector<int>> vis(m, vector<int> (n, 0));
+    for(int i=0; i<m; i++){
+        for(int j=0; j<n; j++){
+            if(grid[i][j] == 2){
+               vis[i][j] = 2;
+               q.push({{i, j}, 0});
+            }
+        }
+    }
 
-    //1.Convert it to adjacency List
-    vector<vector<int>> adjList = matrixToAdjacency(adjMatrix, n);
+    int time = 0;
+    int dir[4][2] = {{1,0}, {0,1}, {-1, 0}, {0, -1}};
+    while(!q.empty()){
+        int i = q.front().first.first;
+        int j = q.front().first.second;
+        time = q.front().second;
+        q.pop();
+
+        for(auto &it: dir){
+            int ni = i + it[0];
+            int nj = j + it[1];
+            int newTime = time + 1;
+            if(ni>=0 && ni <m && nj >=0 && nj <n && grid[ni][nj] == 1 && vis[ni][nj]!=2){
+                q.push({{ni, nj}, newTime});
+                vis[ni][nj] = 2;
+            }
+        }
+    }
+
+    bool ans = false;
+    for(int i=0; i<m; i++){
+        for(int j=0; j<n; j++){
+            if(vis[i][j] != 2 && grid[i][j] == 1){
+                ans = true;
+                break;
+            }
+        }
+    }
+    
+    ans == true? cout << -1 << endl: cout << time << endl;
+    return 0;
 }
